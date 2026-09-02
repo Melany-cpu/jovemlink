@@ -6,7 +6,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     include "conexaoBD.php";
 
     $emailInput = filtrar_entrada($_POST["emailUsuario"] ?? '');
-    $senhaInput = $_POST["senhaUsuario"] ?? '';
+    $senhaInput = md5($_POST["senhaUsuario"]) ?? '';
 
     if (empty($emailInput) || empty($senhaInput)) {
         echo "<div class='alert alert-warning text-center'>Preencha todos os campos!</div>";
@@ -16,7 +16,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Busca o candidato na tabela usando as colunas reais
-    $sql = "SELECT * FROM candidato WHERE emailUsuario = '$emailInput' LIMIT 1";
+    $sql = "SELECT * FROM usuarios WHERE emailUsuario = '$emailInput' AND senhaUsuario = '$senhaInput'";
+
+    echo $sql;
+
     $result = mysqli_query($conn, $sql);
 
     if ($result && mysqli_num_rows($result) > 0) {

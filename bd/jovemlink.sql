@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 19/08/2026 às 19:59
--- Versão do servidor: 8.4.8
--- Versão do PHP: 8.2.12
+-- Tempo de geração: 02-Set-2026 às 19:38
+-- Versão do servidor: 8.0.29
+-- versão do PHP: 8.1.6
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,7 +24,7 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Estrutura para tabela `candidato`
+-- Estrutura da tabela `candidato`
 --
 
 CREATE TABLE `candidato` (
@@ -41,10 +41,19 @@ CREATE TABLE `candidato` (
   `dataCadastro` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Extraindo dados da tabela `candidato`
+--
+
+INSERT INTO `candidato` (`idCandidato`, `fotoUsuario`, `dataNascimentoUsuario`, `nomeUsuario`, `cpfUsuario`, `emailUsuario`, `estadoUsuario`, `cidadeUsuario`, `senhaUsuario`, `nivelUsuario`, `dataCadastro`) VALUES
+(1, NULL, NULL, 'mel', NULL, 'mel@gmail.com', NULL, NULL, '202cb962ac59075b964b07152d234b70', NULL, NULL),
+(4, NULL, NULL, 'MELANY PAULO PRESTES', NULL, 'melany.prestes@escola.pr.gov.br', NULL, NULL, '202cb962ac59075b964b07152d234b70', NULL, NULL),
+(6, NULL, NULL, 'Luiz', NULL, 'luiz@gmail.com', NULL, NULL, '202cb962ac59075b964b07152d234b70', NULL, NULL);
+
 -- --------------------------------------------------------
 
 --
--- Estrutura para tabela `candidatura`
+-- Estrutura da tabela `candidatura`
 --
 
 CREATE TABLE `candidatura` (
@@ -55,10 +64,17 @@ CREATE TABLE `candidatura` (
   `statusCandidatura` varchar(50) DEFAULT 'Em Análise'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Extraindo dados da tabela `candidatura`
+--
+
+INSERT INTO `candidatura` (`idCandidatura`, `idCandidato`, `idVaga`, `dataCandidatura`, `statusCandidatura`) VALUES
+(4, 4, 3, '2026-08-26 16:28:56', 'Pendente');
+
 -- --------------------------------------------------------
 
 --
--- Estrutura para tabela `empresa`
+-- Estrutura da tabela `empresa`
 --
 
 CREATE TABLE `empresa` (
@@ -75,10 +91,18 @@ CREATE TABLE `empresa` (
   `dataCadastro` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Extraindo dados da tabela `empresa`
+--
+
+INSERT INTO `empresa` (`idEmpresa`, `fotoEmpresa`, `nomeEmpresa`, `razaoSocialEmpresa`, `dataFundacaoEmpresa`, `cnpjEmpresa`, `estadoEmpresa`, `cidadeEmpresa`, `emailEmpresa`, `senhaEmpresa`, `dataCadastro`) VALUES
+(1, 'assets/img/1787764875_Captura de tela 2026-05-22 164547.png', 'Chao', '5436533243243256543', '2000-04-23', '456646332423434234', 'PR', 'telemaco', 'chao@gmail.com', '202cb962ac59075b964b07152d234b70', '2026-08-26 19:21:15'),
+(2, 'assets/img/1787772872_cachorro.png', 'pano', '68785764765787657576574545456', '2000-06-23', '654656436535235324', 'PR', 'telemaco', 'pano@gmail.com', '202cb962ac59075b964b07152d234b70', '2026-08-26 21:34:32');
+
 -- --------------------------------------------------------
 
 --
--- Estrutura para tabela `usuarios`
+-- Estrutura da tabela `usuarios`
 --
 
 CREATE TABLE `usuarios` (
@@ -90,25 +114,27 @@ CREATE TABLE `usuarios` (
   `emailUsuario` varchar(100) NOT NULL,
   `estadoUsuario` varchar(50) NOT NULL,
   `cidadeUsuario` varchar(50) NOT NULL,
-  `senhaUsuario` varchar(32) NOT NULL,
-  `confirmarSenhaUsuario` varchar(32) NOT NULL,
+  `senhaUsuario` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `nivelUsuario` varchar(20) DEFAULT 'usuario',
   `dataCadastro` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Despejando dados para a tabela `usuarios`
+-- Extraindo dados da tabela `usuarios`
 --
 
-INSERT INTO `usuarios` (`idUsuario`, `fotoUsuario`, `dataNascimentoUsuario`, `nomeUsuario`, `cpfUsuario`, `emailUsuario`, `estadoUsuario`, `cidadeUsuario`, `senhaUsuario`, `confirmarSenhaUsuario`, `nivelUsuario`, `dataCadastro`) VALUES
-(1, 'assets/img/elisregina26.jpg', '0200-03-12', 'mel', '34243423432', 'mel@gmail.com', 'PR', 'imbau', '202cb962ac59075b964b07152d234b70', '202cb962ac59075b964b07152d234b70', 'usuario', '2026-08-19 17:34:46'),
-(2, 'assets/img/Captura de tela 2026-08-17 161940.png', '2026-08-22', 'mnel', '31244343424', 'mnel@gmail.com', 'PR', 'imbau', '202cb962ac59075b964b07152d234b70', '202cb962ac59075b964b07152d234b70', 'usuario', '2026-08-19 17:42:07'),
-(3, 'assets/img/Captura de tela 2026-03-17 114552.png', '2026-08-08', 'sara', '32424342343', 'sara@gmail.com', 'PR', 'imbau', '202cb962ac59075b964b07152d234b70', '202cb962ac59075b964b07152d234b70', 'usuario', '2026-08-19 17:55:36');
+INSERT INTO `usuarios` (`idUsuario`, `fotoUsuario`, `dataNascimentoUsuario`, `nomeUsuario`, `cpfUsuario`, `emailUsuario`, `estadoUsuario`, `cidadeUsuario`, `senhaUsuario`, `nivelUsuario`, `dataCadastro`) VALUES
+(1, 'assets/img/elisregina26.jpg', '0200-03-12', 'mel', '34243423432', 'mel@gmail.com', 'PR', 'imbau', '202cb962ac59075b964b07152d234b70', 'usuario', '2026-08-19 17:34:46'),
+(2, 'assets/img/Captura de tela 2026-08-17 161940.png', '2026-08-22', 'mnel', '31244343424', 'mnel@gmail.com', 'PR', 'imbau', '202cb962ac59075b964b07152d234b70', 'usuario', '2026-08-19 17:42:07'),
+(3, 'assets/img/Captura de tela 2026-03-17 114552.png', '2026-08-08', 'sara', '32424342343', 'sara@gmail.com', 'PR', 'imbau', '202cb962ac59075b964b07152d234b70', 'usuario', '2026-08-19 17:55:36'),
+(4, 'assets/img/Captura de tela 2026-05-22 164057.png', '2008-06-23', 'MELANY PAULO PRESTES', '12312345676', 'melany.prestes@escola.pr.gov.br', 'PR', 'imbau', '202cb962ac59075b964b07152d234b70', 'usuario', '2026-08-26 16:52:22'),
+(5, 'assets/img/cachorro.png', '2000-06-23', 'MELANY PAULO PRESTES', '12312345676', 'melany.prestes@escola.pr.gov.br', 'PR', 'imbau', '202cb962ac59075b964b07152d234b70', 'usuario', '2026-08-26 18:21:48'),
+(6, 'assets/img/cachorro.png', '2000-06-23', 'Luiz', '69679897685', 'luiz@gmail.com', 'PR', 'imbau', '202cb962ac59075b964b07152d234b70', 'usuario', '2026-08-26 18:24:48');
 
 -- --------------------------------------------------------
 
 --
--- Estrutura para tabela `vaga`
+-- Estrutura da tabela `vaga`
 --
 
 CREATE TABLE `vaga` (
@@ -126,11 +152,18 @@ CREATE TABLE `vaga` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
+-- Extraindo dados da tabela `vaga`
+--
+
+INSERT INTO `vaga` (`idVaga`, `idEmpresa`, `tituloVaga`, `descricaoVaga`, `requisitosVaga`, `modalidadeVaga`, `salarioVaga`, `cidadeVaga`, `estadoVaga`, `statusVaga`, `dataCriacao`) VALUES
+(3, 1, 'estagio', 'vaga Klabin', 'ser educado', 'Presencial', '2500.00', 'sao paulo', 'sp', 'Ativa', '2026-08-26 15:05:11');
+
+--
 -- Índices para tabelas despejadas
 --
 
 --
--- Índices de tabela `candidato`
+-- Índices para tabela `candidato`
 --
 ALTER TABLE `candidato`
   ADD PRIMARY KEY (`idCandidato`),
@@ -138,7 +171,7 @@ ALTER TABLE `candidato`
   ADD UNIQUE KEY `emailCandidato` (`emailUsuario`);
 
 --
--- Índices de tabela `candidatura`
+-- Índices para tabela `candidatura`
 --
 ALTER TABLE `candidatura`
   ADD PRIMARY KEY (`idCandidatura`),
@@ -146,71 +179,71 @@ ALTER TABLE `candidatura`
   ADD KEY `fk_candidatura_vaga` (`idVaga`);
 
 --
--- Índices de tabela `empresa`
+-- Índices para tabela `empresa`
 --
 ALTER TABLE `empresa`
   ADD PRIMARY KEY (`idEmpresa`);
 
 --
--- Índices de tabela `usuarios`
+-- Índices para tabela `usuarios`
 --
 ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`idUsuario`);
 
 --
--- Índices de tabela `vaga`
+-- Índices para tabela `vaga`
 --
 ALTER TABLE `vaga`
   ADD PRIMARY KEY (`idVaga`),
   ADD KEY `fk_vaga_empresa` (`idEmpresa`);
 
 --
--- AUTO_INCREMENT para tabelas despejadas
+-- AUTO_INCREMENT de tabelas despejadas
 --
 
 --
 -- AUTO_INCREMENT de tabela `candidato`
 --
 ALTER TABLE `candidato`
-  MODIFY `idCandidato` int NOT NULL AUTO_INCREMENT;
+  MODIFY `idCandidato` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de tabela `candidatura`
 --
 ALTER TABLE `candidatura`
-  MODIFY `idCandidatura` int NOT NULL AUTO_INCREMENT;
+  MODIFY `idCandidatura` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `empresa`
 --
 ALTER TABLE `empresa`
-  MODIFY `idEmpresa` int NOT NULL AUTO_INCREMENT;
+  MODIFY `idEmpresa` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `idUsuario` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `idUsuario` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de tabela `vaga`
 --
 ALTER TABLE `vaga`
-  MODIFY `idVaga` int NOT NULL AUTO_INCREMENT;
+  MODIFY `idVaga` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- Restrições para tabelas despejadas
+-- Restrições para despejos de tabelas
 --
 
 --
--- Restrições para tabelas `candidatura`
+-- Limitadores para a tabela `candidatura`
 --
 ALTER TABLE `candidatura`
   ADD CONSTRAINT `fk_candidatura_candidato` FOREIGN KEY (`idCandidato`) REFERENCES `candidato` (`idCandidato`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_candidatura_vaga` FOREIGN KEY (`idVaga`) REFERENCES `vaga` (`idVaga`) ON DELETE CASCADE;
 
 --
--- Restrições para tabelas `vaga`
+-- Limitadores para a tabela `vaga`
 --
 ALTER TABLE `vaga`
   ADD CONSTRAINT `fk_vaga_empresa` FOREIGN KEY (`idEmpresa`) REFERENCES `empresa` (`idEmpresa`) ON DELETE CASCADE;

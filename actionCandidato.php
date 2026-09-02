@@ -139,7 +139,7 @@
                 include "conexaoBD.php";
 
                 //Cria a variável para armazenar a QUERY (com nome 'usuarios' em minúsculo)
-                $inserirUsuario = "INSERT INTO usuarios (fotoUsuario, dataNascimentoUsuario, nomeUsuario, cpfUsuario, emailUsuario, estadoUsuario, cidadeUsuario, senhaUsuario, confirmarSenhaUsuario, nivelUsuario) VALUES ('$fotoUsuario', '$dataNascimentoUsuario', '$nomeUsuario', '$cpfUsuario', '$emailUsuario', '$estadoUsuario', '$cidadeUsuario', '$senhaUsuario', '$confirmarSenhaUsuario', 'usuario')";
+                $inserirUsuario = "INSERT INTO usuarios (fotoUsuario, dataNascimentoUsuario, nomeUsuario, cpfUsuario, emailUsuario, estadoUsuario, cidadeUsuario, senhaUsuario, nivelUsuario) VALUES ('$fotoUsuario', '$dataNascimentoUsuario', '$nomeUsuario', '$cpfUsuario', '$emailUsuario', '$estadoUsuario', '$cidadeUsuario', '$senhaUsuario', 'usuario')";
 
                 if(mysqli_query($conn, $inserirUsuario)){
 
