@@ -11702,3 +11702,348 @@ body {
     line-height: 1.5; 
     margin: 0; 
 }
+
+/* Importação de fontes (se necessário) */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --jl-primary: #0d6efd;
+    --jl-primary-hover: #0b5ed7;
+    --jl-gradient: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+    --jl-heading-color: #1e293b;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    color: #334155;
+}
+
+/* Classes de Fontes e Cores Personalizadas */
+.jl-font-title {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+.jl-font-body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+.jl-color-heading {
+    color: var(--jl-heading-color) !important;
+}
+
+.text-jl {
+    color: var(--jl-primary) !important;
+}
+
+/* Badges e Fundo Gradient */
+.bg-jl-blue {
+    background-color: var(--jl-primary) !important;
+    color: #ffffff !important;
+}
+
+.bg-jl-gradient {
+    background: var(--jl-gradient) !important;
+    color: #ffffff !important;
+}
+
+/* Botões do JovemLink */
+.btn-jl-primary {
+    background-color: var(--jl-primary) !important;
+    border-color: var(--jl-primary) !important;
+    color: #ffffff !important;
+}
+
+.btn-jl-primary:hover, 
+.btn-jl-primary:focus {
+    background-color: var(--jl-primary-hover) !important;
+    border-color: var(--jl-primary-hover) !important;
+    color: #ffffff !important;
+}
+
+/* Sobrescreve botões padrão do Bootstrap para remover qualquer tom alaranjado */
+.btn-secondary {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+.btn-secondary:hover {
+    background-color: #5c636a !important;
+    border-color: #565e64 !important;
+}
+
+.btn-primary {
+    background-color: var(--jl-primary) !important;
+    border-color: var(--jl-primary) !important;
+}
+
+/* Ajustes da Sidebar Lateral */
+.sidebar .nav-link {
+    transition: all 0.2s ease-in-out;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #f8f9fa;
+    color: var(--jl-primary) !important;
+}
+
+/* Labels e Detalhes */
+.style-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+/* Importação da fonte do projeto */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* Variáveis de Cores do JovemLink */
+:root {
+    --jl-primary: #0d6efd;
+    --jl-primary-hover: #0b5ed7;
+    --jl-gradient: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+    --jl-heading-color: #1e293b;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    color: #334155;
+    background-color: #f8f9fa;
+}
+
+/* Tipografia e Cores de Texto */
+.jl-font-title, 
+.jl-font-body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+.jl-color-heading {
+    color: var(--jl-heading-color) !important;
+}
+
+.text-jl {
+    color: var(--jl-primary) !important;
+}
+
+/* Badges e Fundo Gradient */
+.bg-jl-blue {
+    background-color: var(--jl-primary) !important;
+    color: #ffffff !important;
+}
+
+.bg-jl-gradient {
+    background: var(--jl-gradient) !important;
+    color: #ffffff !important;
+}
+
+/* Botões Personalizados */
+.btn-jl-primary {
+    background-color: var(--jl-primary) !important;
+    border-color: var(--jl-primary) !important;
+    color: #ffffff !important;
+}
+
+.btn-jl-primary:hover, 
+.btn-jl-primary:focus {
+    background-color: var(--jl-primary-hover) !important;
+    border-color: var(--jl-primary-hover) !important;
+    color: #ffffff !important;
+}
+
+/* Sobrescreve botões Bootstrap para remover tons alaranjados/indesejados */
+.btn-secondary {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+.btn-secondary:hover {
+    background-color: #5c636a !important;
+    border-color: #565e64 !important;
+}
+
+.btn-primary {
+    background-color: var(--jl-primary) !important;
+    border-color: var(--jl-primary) !important;
+}
+
+/* Estilo das Abas / Menu Lateral */
+.sidebar .nav-link {
+    color: #334155 !important;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.sidebar .nav-link.active {
+    background-color: #e7f1ff !important;
+    color: var(--jl-primary) !important;
+    font-weight: 600 !important;
+}
+
+.sidebar .nav-link:hover:not(.active) {
+    background-color: #f8f9fa !important;
+    color: var(--jl-primary) !important;
+}
+
+/* Detalhes de Rótulos */
+.style-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    color: #334155;
+    background-color: #f8f9fa;
+}
+
+.sidebar {
+    min-height: 100vh;
+    background-color: #ffffff;
+    border-right: 1px solid #dee2e6;
+}
+
+.sidebar .nav-link {
+    color: #334155;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease-in-out;
+    font-weight: 600;
+    padding: 0.6rem 1rem;
+}
+
+.sidebar .nav-link.active {
+    background-color: #0d6efd !important;
+    color: #ffffff !important;
+}
+
+.sidebar .nav-link:hover:not(.active) {
+    background-color: #e7f1ff;
+    color: #0d6efd;
+}
+
+.style-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+/* Importação da fonte Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+/* Aplicação global da fonte */
+* {
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif !important;
+}
+
+body {
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif !important;
+    color: #334155;
+    background-color: #f8f9fa;
+}
+
+/* Força a cor azul no botão outline de foto */
+.btn-outline-primary {
+    color: #0d6efd !important;
+    border-color: #0d6efd !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0d6efd !important;
+    color: #ffffff !important;
+}
+
+/* Sidebar */
+.sidebar {
+    min-height: 100vh;
+    background-color: #ffffff;
+    border-right: 1px solid #dee2e6;
+}
+
+.sidebar .nav-link {
+    color: #334155;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease-in-out;
+    font-weight: 600;
+    padding: 0.6rem 1rem;
+}
+
+.sidebar .nav-link.active {
+    background-color: #0d6efd !important;
+    color: #ffffff !important;
+}
+
+.sidebar .nav-link:hover:not(.active) {
+    background-color: #e7f1ff;
+    color: #0d6efd;
+}
+
+.style-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+/* Tipografia Global */
+* {
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif !important;
+}
+
+body {
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif !important;
+    color: #334155;
+    background-color: #f8f9fa;
+}
+
+/* Botões com estilo Outline Primário (Azul) */
+.btn-outline-primary {
+    color: #0d6efd !important;
+    border-color: #0d6efd !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0d6efd !important;
+    color: #ffffff !important;
+}
+
+/* Foco nos campos de entrada */
+.form-control:focus, .form-select:focus {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+}
+
+/* Estilo da Sidebar Lateral */
+.sidebar {
+    background-color: #ffffff;
+    min-height: 100vh;
+    border-right: 1px solid #e9ecef;
+}
+
+/* Links do menu */
+.sidebar .nav-link {
+    color: #0b2e59;
+    font-weight: 400 !important;
+    padding: 10px 15px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+/* Efeito ao passar o mouse */
+.sidebar .nav-link:hover {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+}
+
+/* Item ativo (sem negrito se não desejar) */
+.sidebar .nav-link.active {
+    background-color: #e7f1ff;
+    color: #0d6efd !important;
+    font-weight: 400 !important;
+}
+
+.sidebar .nav-link.active {
+    background-color: #0d6efd !important;
+    color: #ffffff !important;
+}
+
+.sidebar .nav-link.active i {
+    color: #ffffff !important;
+}
