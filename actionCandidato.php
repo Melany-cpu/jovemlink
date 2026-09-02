@@ -138,8 +138,8 @@
                 //Inclui o arquivo de conexão com o Banco de Dados
                 include "conexaoBD.php";
 
-                //Cria a variável para armazenar a QUERY (com nome 'usuarios' em minúsculo)
-                $inserirUsuario = "INSERT INTO usuarios (fotoUsuario, dataNascimentoUsuario, nomeUsuario, cpfUsuario, emailUsuario, estadoUsuario, cidadeUsuario, senhaUsuario, nivelUsuario) VALUES ('$fotoUsuario', '$dataNascimentoUsuario', '$nomeUsuario', '$cpfUsuario', '$emailUsuario', '$estadoUsuario', '$cidadeUsuario', '$senhaUsuario', 'usuario')";
+                //Cria a variável para armazenar a QUERY (com o campo 'confirmarSenhaUsuario' incluído para evitar o erro)
+                $inserirUsuario = "INSERT INTO usuarios (fotoUsuario, dataNascimentoUsuario, nomeUsuario, cpfUsuario, emailUsuario, estadoUsuario, cidadeUsuario, senhaUsuario, confirmarSenhaUsuario, nivelUsuario) VALUES ('$fotoUsuario', '$dataNascimentoUsuario', '$nomeUsuario', '$cpfUsuario', '$emailUsuario', '$estadoUsuario', '$cidadeUsuario', '$senhaUsuario', '$confirmarSenhaUsuario', 'usuario')";
 
                 if(mysqli_query($conn, $inserirUsuario)){
 
@@ -148,9 +148,9 @@
                         session_start();
                     }
 
-                    $_SESSION['idUsuario']   = mysqli_insert_id($conn);
-                    $_SESSION['nomeUsuario'] = $nomeUsuario;
-                    $_SESSION['nivelUsuario']= 'usuario';
+                    $_SESSION['idUsuario']    = mysqli_insert_id($conn);
+                    $_SESSION['nomeUsuario']  = $nomeUsuario;
+                    $_SESSION['nivelUsuario'] = 'usuario';
 
                     //Redireciona diretamente para a página de vagas
                     header("Location: listarVagas.php");
