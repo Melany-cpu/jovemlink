@@ -1,3 +1,52 @@
+<?php
+// 1. Inicia a sessão e valida o login
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
+    header("Location: formLogin.php");
+    exit();
+}
+
+include "conexaoBD.php";
+
+// 2. Identifica o ID do usuário logado
+$idUsuario = $_SESSION['idUsuario'] ?? $_SESSION['idCandidato'] ?? 0;
+
+// 3. Consulta dados do banco usando idUsuario
+$sql = "SELECT * FROM usuarios WHERE idUsuario = '$idUsuario'";
+$result = mysqli_query($conn, $sql);
+
+if ($result && mysqli_num_rows($result) > 0) {
+    $usuario = mysqli_fetch_assoc($result);
+} else {
+    echo "Usuário não encontrado.";
+    exit();
+}
+
+// 4. Prepara variáveis para preencher os campos do formulário
+$nome = htmlspecialchars($usuario['nomeUsuario'] ?? '');
+$dataNascimento = htmlspecialchars($usuario['dataNascimentoUsuario'] ?? '');
+$email = htmlspecialchars($usuario['emailUsuario'] ?? '');
+$telefone = htmlspecialchars($usuario['telefoneUsuario'] ?? '');
+$cidade = htmlspecialchars($usuario['cidadeUsuario'] ?? '');
+$estadoUsuario = $usuario['estadoUsuario'] ?? 'SP';
+
+// Foto de perfil com fallback para imagem padrão
+$foto = (!empty($usuario['fotoUsuario']) && file_exists($usuario['fotoUsuario'])) ? $usuario['fotoUsuario'] : "assets/img/default-user.png";
+
+// Lista de estados brasileiros para o select
+$estados = [
+    'AC' => 'Acre', 'AL' => 'Alagoas', 'AP' => 'Amapá', 'AM' => 'Amazonas',
+    'BA' => 'Bahia', 'CE' => 'Ceará', 'DF' => 'Distrito Federal', 'ES' => 'Espírito Santo',
+    'GO' => 'Goiás', 'MA' => 'Maranhão', 'MT' => 'Mato Grosso', 'MS' => 'Mato Grosso do Sul',
+    'MG' => 'Minas Gerais', 'PA' => 'Pará', 'PB' => 'Paraíba', 'PR' => 'Paraná',
+    'PE' => 'Pernambuco', 'PI' => 'Piauí', 'RJ' => 'Rio de Janeiro', 'RN' => 'Rio Grande do Norte',
+    'RS' => 'Rio Grande do Sul', 'RO' => 'Rondônia', 'RR' => 'Roraima', 'SC' => 'Santa Catarina',
+    'SP' => 'São Paulo', 'SE' => 'Sergipe', 'TO' => 'Tocantins'
+];
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -70,7 +119,7 @@
                             <div class="card border-0 shadow-sm p-4 text-center rounded-3 h-100">
                                 <h5 class="fw-bold mb-3" style="color: #0b2e59 !important;">Foto do Perfil</h5>
                                 <div class="mb-3">
-                                    <img src="assets/img/ana.webp" alt="Ana Silva" class="rounded-circle img-thumbnail shadow-sm mb-3" style="width: 140px; height: 140px; object-fit: cover;">
+                                    <img src="<?= $foto ?>" alt="<?= $nome ?>" class="rounded-circle img-thumbnail shadow-sm mb-3" style="width: 140px; height: 140px; object-fit: cover;">
                                 </div>
                                 <div class="text-start">
                                     <label for="fotoPerfil" class="form-label small fw-semibold text-muted">Alterar Imagem</label>
@@ -91,22 +140,22 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label for="nome" class="form-label small fw-semibold text-muted">Nome Completo</label>
-                                        <input type="text" class="form-control" id="nome" name="nome" value="Ana Silva" required>
+                                        <input type="text" class="form-control" id="nome" name="nome" value="<?= $nome ?>" required>
                                     </div>
                                     
                                     <div class="col-md-6">
                                         <label for="dataNascimento" class="form-label small fw-semibold text-muted">Data de Nascimento</label>
-                                        <input type="date" class="form-control" id="dataNascimento" name="dataNascimento" value="2009-05-14" required>
+                                        <input type="date" class="form-control" id="dataNascimento" name="dataNascimento" value="<?= $dataNascimento ?>" required>
                                     </div>
 
                                     <div class="col-md-6">
                                         <label for="email" class="form-label small fw-semibold text-muted">E-mail</label>
-                                        <input type="email" class="form-control" id="email" name="email" value="ana.silva@email.com" required>
+                                        <input type="email" class="form-control" id="email" name="email" value="<?= $email ?>" required>
                                     </div>
 
                                     <div class="col-md-6">
                                         <label for="telefone" class="form-label small fw-semibold text-muted">Telefone / WhatsApp</label>
-                                        <input type="text" class="form-control" id="telefone" name="telefone" value="(11) 99999-9999" required>
+                                        <input type="text" class="form-control" id="telefone" name="telefone" value="<?= $telefone ?>" required>
                                     </div>
                                 </div>
 
@@ -117,39 +166,17 @@
                                 <div class="row g-3">
                                     <div class="col-md-8">
                                         <label for="cidade" class="form-label small fw-semibold text-muted">Cidade</label>
-                                        <input type="text" class="form-control" id="cidade" name="cidade" value="São Paulo" required>
+                                        <input type="text" class="form-control" id="cidade" name="cidade" value="<?= $cidade ?>" required>
                                     </div>
 
                                     <div class="col-md-4">
                                         <label for="estado" class="form-label small fw-semibold text-muted">Estado (UF)</label>
                                         <select class="form-select" id="estado" name="estado" required>
-                                            <option value="AC">Acre</option>
-                                            <option value="AL">Alagoas</option>
-                                            <option value="AP">Amapá</option>
-                                            <option value="AM">Amazonas</option>
-                                            <option value="BA">Bahia</option>
-                                            <option value="CE">Ceará</option>
-                                            <option value="DF">Distrito Federal</option>
-                                            <option value="ES">Espírito Santo</option>
-                                            <option value="GO">Goiás</option>
-                                            <option value="MA">Maranhão</option>
-                                            <option value="MT">Mato Grosso</option>
-                                            <option value="MS">Mato Grosso do Sul</option>
-                                            <option value="MG">Minas Gerais</option>
-                                            <option value="PA">Pará</option>
-                                            <option value="PB">Paraíba</option>
-                                            <option value="PR">Paraná</option>
-                                            <option value="PE">Pernambuco</option>
-                                            <option value="PI">Piauí</option>
-                                            <option value="RJ">Rio de Janeiro</option>
-                                            <option value="RN">Rio Grande do Norte</option>
-                                            <option value="RS">Rio Grande do Sul</option>
-                                            <option value="RO">Rondônia</option>
-                                            <option value="RR">Roraima</option>
-                                            <option value="SC">Santa Catarina</option>
-                                            <option value="SP" selected>São Paulo</option>
-                                            <option value="SE">Sergipe</option>
-                                            <option value="TO">Tocantins</option>
+                                            <?php foreach ($estados as $sigla => $nomeEstado): ?>
+                                                <option value="<?= $sigla ?>" <?= ($estadoUsuario === $sigla) ? 'selected' : '' ?>>
+                                                    <?= $nomeEstado ?>
+                                                </option>
+                                            <?php endforeach; ?>
                                         </select>
                                     </div>
                                 </div>

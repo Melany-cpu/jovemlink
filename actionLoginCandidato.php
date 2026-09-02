@@ -5,8 +5,9 @@
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     include "conexaoBD.php";
 
+    // 1. Pega os dados digitados crus (sem aplicar md5 diretamente)
     $emailInput = filtrar_entrada($_POST["emailUsuario"] ?? '');
-    $senhaInput = md5($_POST["senhaUsuario"]) ?? '';
+    $senhaInput = $_POST["senhaUsuario"] ?? '';
 
     if (empty($emailInput) || empty($senhaInput)) {
         echo "<div class='alert alert-warning text-center'>Preencha todos os campos!</div>";
@@ -15,38 +16,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // Busca o candidato na tabela usando as colunas reais
-    $sql = "SELECT * FROM usuarios WHERE emailUsuario = '$emailInput' AND senhaUsuario = '$senhaInput'";
-
-    echo $sql;
-
+    // 2. Busca o usuário APENAS pelo e-mail
+    $sql = "SELECT * FROM usuarios WHERE emailUsuario = '$emailInput'";
     $result = mysqli_query($conn, $sql);
 
     if ($result && mysqli_num_rows($result) > 0) {
         $usuario = mysqli_fetch_assoc($result);
-        
-        $senhaMD5 = md5(filtrar_entrada($senhaInput));
         $senhaBanco = $usuario['senhaUsuario'];
 
-        // Aceita a senha em MD5, texto puro ou hash padrão
-        if ($senhaMD5 === $senhaBanco || $senhaInput === $senhaBanco || password_verify($senhaInput, $senhaBanco)) {
+        // 3. Valida a senha (suporta password_hash moderno, MD5 antigo ou texto puro)
+        if (password_verify($senhaInput, $senhaBanco) || md5($senhaInput) === $senhaBanco || $senhaInput === $senhaBanco) {
             
             if (session_status() === PHP_SESSION_NONE) {
                 session_start();
             }
 
-            // 1. Limpa totalmente os dados residuais da conta anterior
+            // Limpa dados anteriores e previne Session Fixation
             session_unset();
-
-            // 2. Regenera a sessão criando um ID novo e seguro no servidor
             session_regenerate_id(true);
 
-            // 3. Salva com precisão os dados do NOVO usuário logado
-            $idCandidato = $usuario['idCandidato'];
+            // Ajuste do ID primário (verifica se a coluna é idUsuario ou idCandidato)
+            $idUsuario = $usuario['idUsuario'] ?? $usuario['idCandidato'] ?? null;
 
             $_SESSION['logado']        = true;
-            $_SESSION['idCandidato']   = $idCandidato;
-            $_SESSION['idUsuario']     = $idCandidato; 
+            $_SESSION['idCandidato']   = $idUsuario;
+            $_SESSION['idUsuario']     = $idUsuario; 
             $_SESSION['nomeCandidato'] = $usuario['nomeUsuario'] ?? 'Candidato';
             $_SESSION['nomeUsuario']   = $usuario['nomeUsuario'] ?? 'Candidato';
             $_SESSION['emailUsuario']  = $usuario['emailUsuario'] ?? '';
@@ -57,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    // Mensagem de erro caso e-mail/senha não confirmem no banco
+    // Mensagem exibida caso e-mail não exista ou a senha não coincida
     echo "<div class='alert alert-danger text-center'><strong>E-MAIL</strong> ou <strong>SENHA</strong> incorretos!</div>";
     echo "<div class='text-center mt-3'><a href='formLogin.php' class='btn btn-primary'>Tentar novamente</a></div>";
 

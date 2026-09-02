@@ -1,3 +1,48 @@
+<?php
+// 1. Inicia a sessão e valida o login
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
+    header("Location: formLogin.php");
+    exit();
+}
+
+include "conexaoBD.php";
+
+// 2. Identifica o ID do usuário conectado
+$idUsuario = $_SESSION['idUsuario'] ?? $_SESSION['idCandidato'] ?? 0;
+
+// 3. Busca os dados do usuário no Banco de Dados
+$sql = "SELECT * FROM usuarios WHERE idUsuario = '$idUsuario'";
+$result = mysqli_query($conn, $sql);
+
+if ($result && mysqli_num_rows($result) > 0) {
+    $usuario = mysqli_fetch_assoc($result);
+} else {
+    echo "Usuário não encontrado.";
+    exit();
+}
+
+// 4. Tratamento das variáveis para exibição no HTML
+$nome = !empty($usuario['nomeUsuario']) ? htmlspecialchars($usuario['nomeUsuario']) : "Candidato";
+$email = !empty($usuario['emailUsuario']) ? htmlspecialchars($usuario['emailUsuario']) : "Não informado";
+$cidade = !empty($usuario['cidadeUsuario']) ? htmlspecialchars($usuario['cidadeUsuario']) : "";
+$estado = !empty($usuario['estadoUsuario']) ? htmlspecialchars($usuario['estadoUsuario']) : "";
+$localizacao = (!empty($cidade) && !empty($estado)) ? "{$cidade} - {$estado}" : "Localização não informada";
+
+// Caminho e fallback para a imagem de perfil
+$foto = (!empty($usuario['fotoUsuario']) && file_exists($usuario['fotoUsuario'])) ? $usuario['fotoUsuario'] : "assets/img/default-user.png";
+
+// Cálculo de idade
+$idade = "Idade não informada";
+if (!empty($usuario['dataNascimentoUsuario'])) {
+    $dataNasc = new DateTime($usuario['dataNascimentoUsuario']);
+    $hoje = new DateTime();
+    $idade = $hoje->diff($dataNasc)->y . " anos";
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -28,7 +73,8 @@
                 <a class="nav-link" href="perfilCandidato.php" style="font-weight: normal !important;"><i class="bi bi-file-person me-2"></i> Meu currículo</a>
                 <a class="nav-link" href="listarVagas.php" style="font-weight: normal !important;"><i class="bi bi-briefcase me-2"></i> Oportunidades</a>
                 <a class="nav-link" href="editarPerfil.php" style="font-weight: normal !important;"><i class="bi bi-person me-2"></i> Perfil</a>
-                <a class="nav-link text-danger mt-4" href="sair.php" style="font-weight: normal !important;"><i class="bi bi-box-arrow-right me-2"></i> Sair</a>
+                <!-- Link de Logout Corrigido -->
+                <a class="nav-link text-danger mt-4" href="logoutUsuario.php" style="font-weight: normal !important;"><i class="bi bi-box-arrow-right me-2"></i> Sair</a>
             </nav>
         </div>
 
@@ -64,22 +110,21 @@
                         <div class="card border-0 shadow-sm p-4 mb-4 rounded-3">
                             <div class="d-flex flex-column flex-sm-row align-items-center align-items-sm-start gap-4">
                                 <div class="text-center">
-                                    <img src="assets/img/ana.webp" alt="Ana Silva" class="rounded-circle img-thumbnail mb-2 shadow-sm" style="width: 120px; height: 120px; object-fit: cover;">
+                                    <img src="<?= $foto ?>" alt="<?= $nome ?>" class="rounded-circle img-thumbnail mb-2 shadow-sm" style="width: 120px; height: 120px; object-fit: cover;">
                                     <a href="editarPerfil.php" class="btn btn-sm btn-outline-primary w-100"><i class="bi bi-pencil me-1"></i> Foto</a>
                                 </div>
                                 <div class="user-details flex-grow-1 text-center text-sm-start">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <h2 class="display-6 fw-bold mb-0" style="color: #0b2e59 !important;">Ana Silva</h2>
+                                        <h2 class="display-6 fw-bold mb-0" style="color: #0b2e59 !important;"><?= $nome ?></h2>
                                         <a href="editarPerfil.php" class="btn text-white btn-sm px-3 d-none d-sm-inline-block" style="background-color: #0d6efd !important;">
                                             <i class="bi bi-pencil me-1"></i> Editar Perfil
                                         </a>
                                     </div>
                                     
                                     <div class="row g-2 mt-2 text-muted">
-                                        <div class="col-sm-6"><i class="bi bi-calendar me-2" style="color: #0d6efd !important;"></i> 16 anos</div>
-                                        <div class="col-sm-6"><i class="bi bi-geo-alt me-2" style="color: #0d6efd !important;"></i> São Paulo - SP</div>
-                                        <div class="col-sm-6"><i class="bi bi-envelope me-2" style="color: #0d6efd !important;"></i> ana.silva@email.com</div>
-                                        <div class="col-sm-6"><i class="bi bi-telephone me-2" style="color: #0d6efd !important;"></i> (11) 99999-9999</div>
+                                        <div class="col-sm-6"><i class="bi bi-calendar me-2" style="color: #0d6efd !important;"></i> <?= $idade ?></div>
+                                        <div class="col-sm-6"><i class="bi bi-geo-alt me-2" style="color: #0d6efd !important;"></i> <?= $localizacao ?></div>
+                                        <div class="col-sm-6"><i class="bi bi-envelope me-2" style="color: #0d6efd !important;"></i> <?= $email ?></div>
                                     </div>
                                 </div>
                             </div>
@@ -102,7 +147,7 @@
                                             </div>
                                             <div>
                                                 <span class="text-uppercase text-muted fw-bold style-label">Escolaridade</span>
-                                                <h6 class="mb-0 fw-bold fs-5" style="color: #0b2e59 !important;">Ensino Médio – Cursando 1º ano</h6>
+                                                <h6 class="mb-0 fw-bold fs-5" style="color: #0b2e59 !important;"><?= htmlspecialchars($usuario['escolaridadeUsuario'] ?? 'Ensino Médio – Cursando') ?></h6>
                                             </div>
                                         </div>
                                         <a href="editarPerfil.php" class="text-decoration-none fw-semibold pe-2" style="color: #0d6efd !important;">Alterar</a>
@@ -118,7 +163,7 @@
                                             </div>
                                             <div>
                                                 <span class="text-uppercase text-muted fw-bold style-label">Cursos Adicionais</span>
-                                                <h6 class="mb-0 fw-bold fs-5" style="color: #0b2e59 !important;">Informática Básica, Excel Básico</h6>
+                                                <h6 class="mb-0 fw-bold fs-5" style="color: #0b2e59 !important;"><?= htmlspecialchars($usuario['cursosUsuario'] ?? 'Informática Básica') ?></h6>
                                             </div>
                                         </div>
                                         <a href="editarPerfil.php" class="text-decoration-none fw-semibold pe-2" style="color: #0d6efd !important;">Alterar</a>
@@ -134,7 +179,7 @@
                                             </div>
                                             <div>
                                                 <span class="text-uppercase text-muted fw-bold style-label">Habilidades Principais</span>
-                                                <h6 class="mb-0 fw-bold fs-5" style="color: #0b2e59 !important;">Comunicação, Organização, Aprendizado rápido</h6>
+                                                <h6 class="mb-0 fw-bold fs-5" style="color: #0b2e59 !important;"><?= htmlspecialchars($usuario['habilidadesUsuario'] ?? 'Comunicação, Organização') ?></h6>
                                             </div>
                                         </div>
                                         <a href="editarPerfil.php" class="text-decoration-none fw-semibold pe-2" style="color: #0d6efd !important;">Alterar</a>
@@ -150,7 +195,7 @@
                                             </div>
                                             <div>
                                                 <span class="text-uppercase text-muted fw-bold style-label">Área de Interesse</span>
-                                                <h6 class="mb-0 fw-bold fs-5" style="color: #0b2e59 !important;">Administrativo, Informática, Atendimento</h6>
+                                                <h6 class="mb-0 fw-bold fs-5" style="color: #0b2e59 !important;"><?= htmlspecialchars($usuario['interesseUsuario'] ?? 'Administrativo, Atendimento') ?></h6>
                                             </div>
                                         </div>
                                         <a href="editarPerfil.php" class="text-decoration-none fw-semibold pe-2" style="color: #0d6efd !important;">Alterar</a>
@@ -218,47 +263,38 @@
                 <div class="p-4 p-md-5 bg-white rounded-3 shadow-sm border">
                     <div class="row align-items-center pb-4 mb-4 border-bottom g-3">
                         <div class="col-sm-3 text-center">
-                            <img src="assets/img/ana.webp" alt="Ana Silva" class="rounded-circle img-fluid border" style="width: 100px; height: 100px; object-fit: cover;">
+                            <img src="<?= $foto ?>" alt="<?= $nome ?>" class="rounded-circle img-fluid border" style="width: 100px; height: 100px; object-fit: cover;">
                         </div>
                         <div class="col-sm-9 text-center text-sm-start">
-                            <h2 class="display-4 fw-bold mb-1" style="color: #0b2e59 !important;">Ana Silva</h2>
-                            <p class="text-muted fw-semibold mb-2">Jovem Aprendiz / Assistente Administrativo</p>
+                            <h2 class="display-4 fw-bold mb-1" style="color: #0b2e59 !important;"><?= $nome ?></h2>
+                            <p class="text-muted fw-semibold mb-2">Jovem Aprendiz</p>
                             
                             <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-sm-start text-muted small">
-                                <span><i class="bi bi-calendar me-1" style="color: #0d6efd !important;"></i> 16 anos</span>
-                                <span><i class="bi bi-geo-alt me-1" style="color: #0d6efd !important;"></i> São Paulo - SP</span>
-                                <span><i class="bi bi-envelope me-1" style="color: #0d6efd !important;"></i> ana.silva@email.com</span>
-                                <span><i class="bi bi-telephone me-1" style="color: #0d6efd !important;"></i> (11) 99999-9999</span>
+                                <span><i class="bi bi-calendar me-1" style="color: #0d6efd !important;"></i> <?= $idade ?></span>
+                                <span><i class="bi bi-geo-alt me-1" style="color: #0d6efd !important;"></i> <?= $localizacao ?></span>
+                                <span><i class="bi bi-envelope me-1" style="color: #0d6efd !important;"></i> <?= $email ?></span>
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-4">
                         <h6 class="text-uppercase fw-bold border-bottom pb-2 mb-3" style="color: #0d6efd !important;"><i class="bi bi-mortarboard me-2"></i> Escolaridade</h6>
-                        <p class="fw-bold mb-0">Ensino Médio</p>
-                        <p class="text-muted small mb-0">Cursando o 1º ano</p>
+                        <p class="fw-bold mb-0"><?= htmlspecialchars($usuario['escolaridadeUsuario'] ?? 'Ensino Médio') ?></p>
                     </div>
 
                     <div class="mb-4">
                         <h6 class="text-uppercase fw-bold border-bottom pb-2 mb-3" style="color: #0d6efd !important;"><i class="bi bi-journal-bookmark me-2"></i> Cursos Adicionais</h6>
-                        <ul class="list-unstyled mb-0 text-muted">
-                            <li class="mb-2"><i class="bi bi-check2 me-2" style="color: #0d6efd !important;"></i><strong>Informática Básica:</strong> Operação de Sistemas e Navegação.</li>
-                            <li><i class="bi bi-check2 me-2" style="color: #0d6efd !important;"></i><strong>Excel Básico:</strong> Planilhas e Fórmulas Iniciais.</li>
-                        </ul>
+                        <p class="text-muted mb-0"><?= htmlspecialchars($usuario['cursosUsuario'] ?? 'Informática Básica') ?></p>
                     </div>
 
                     <div class="mb-4">
                         <h6 class="text-uppercase fw-bold border-bottom pb-2 mb-3" style="color: #0d6efd !important;"><i class="bi bi-star me-2"></i> Habilidades Principais</h6>
-                        <div class="d-flex flex-wrap gap-2 pt-1">
-                            <span class="badge bg-light text-dark border px-3 py-2 fw-normal">Comunicação</span>
-                            <span class="badge bg-light text-dark border px-3 py-2 fw-normal">Organização</span>
-                            <span class="badge bg-light text-dark border px-3 py-2 fw-normal">Aprendizado rápido</span>
-                        </div>
+                        <p class="text-muted mb-0"><?= htmlspecialchars($usuario['habilidadesUsuario'] ?? 'Comunicação, Organização') ?></p>
                     </div>
 
                     <div>
                         <h6 class="text-uppercase fw-bold border-bottom pb-2 mb-3" style="color: #0d6efd !important;"><i class="bi bi-bullseye me-2"></i> Área de Interesse</h6>
-                        <p class="text-muted mb-0">Administrativo, Informática, Atendimento ao Cliente</p>
+                        <p class="text-muted mb-0"><?= htmlspecialchars($usuario['interesseUsuario'] ?? 'Administrativo') ?></p>
                     </div>
                 </div>
             </div>
