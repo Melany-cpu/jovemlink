@@ -14,14 +14,18 @@ include "conexaoBD.php";
 $idSessao = intval($_SESSION['idCandidato'] ?? $_SESSION['idUsuario'] ?? 0);
 $emailSessao = mysqli_real_escape_string($conn, $_SESSION['emailUsuario'] ?? '');
 
-// Busca os dados das tabelas sem forçar colunas inexistentes na Query
-$sqlBuscaDados = "SELECT c.*, 
-                         u.fotoUsuario AS fotoUser, 
+// Busca os dados priorizando os dados da tabela usuarios
+$sqlBuscaDados = "SELECT u.idUsuario,
                          u.nomeUsuario AS nomeUser,
-                         u.cidadeUsuario AS cidadeUser
-                  FROM candidato c 
-                  LEFT JOIN usuarios u ON c.idCandidato = u.idUsuario OR c.emailUsuario = u.emailUsuario
-                  WHERE c.idCandidato = '$idSessao' OR c.emailUsuario = '$emailSessao' OR u.idUsuario = '$idSessao' 
+                         u.fotoUsuario AS fotoUser,
+                         u.cidadeUsuario AS cidadeUser,
+                         u.emailUsuario AS emailUser,
+                         c.idCandidato,
+                         c.nomeUsuario AS nomeCandidatoBD,
+                         c.fotoUsuario AS fotoCandidatoBD
+                  FROM usuarios u
+                  LEFT JOIN candidato c ON (u.idUsuario = c.idCandidato OR u.emailUsuario = c.emailUsuario)
+                  WHERE u.idUsuario = '$idSessao' OR u.emailUsuario = '$emailSessao' OR c.idCandidato = '$idSessao'
                   LIMIT 1";
 
 $resBusca = mysqli_query($conn, $sqlBuscaDados);
@@ -31,23 +35,26 @@ $idCandidatoValido = null;
 if ($resBusca && mysqli_num_rows($resBusca) > 0) {
     $dadosUsuario = mysqli_fetch_assoc($resBusca);
     $idCandidatoValido = $dadosUsuario['idCandidato'] ?? $dadosUsuario['idUsuario'];
-} else {
-    // Se não encontrou na tabela candidato, busca na tabela usuarios
-    $sqlUser = mysqli_query($conn, "SELECT * FROM usuarios WHERE idUsuario = '$idSessao' OR emailUsuario = '$emailSessao' LIMIT 1");
-    if ($sqlUser && mysqli_num_rows($sqlUser) > 0) {
-        $user = mysqli_fetch_assoc($sqlUser);
-        $dadosUsuario = $user;
-        $idCandidatoValido = $user['idUsuario'];
 
-        // Cria a linha na tabela candidato automaticamente para evitar falhas de FK
-        $nome  = mysqli_real_escape_string($conn, $user['nomeUsuario'] ?? '');
-        $email = mysqli_real_escape_string($conn, $user['emailUsuario'] ?? '');
-        $senha = mysqli_real_escape_string($conn, $user['senhaUsuario'] ?? '');
+    // Se o registro em candidato não existir, cria automaticamente
+    if (empty($dadosUsuario['idCandidato'])) {
+        $nome  = mysqli_real_escape_string($conn, $dadosUsuario['nomeUser'] ?? '');
+        $email = mysqli_real_escape_string($conn, $dadosUsuario['emailUser'] ?? '');
         
-        $insere = "INSERT INTO candidato (idCandidato, nomeUsuario, emailUsuario, senhaUsuario) 
-                   VALUES ('$idCandidatoValido', '$nome', '$email', '$senha')";
+        $insere = "INSERT INTO candidato (idCandidato, nomeUsuario, emailUsuario) 
+                   VALUES ('{$dadosUsuario['idUsuario']}', '$nome', '$email')";
         mysqli_query($conn, $insere);
+        $idCandidatoValido = $dadosUsuario['idUsuario'];
+    } else {
+        // MANTÉM OS DADOS DE CANDIDATO SINCRONIZADOS COM USUARIOS
+        $nomeUserEsc = mysqli_real_escape_string($conn, $dadosUsuario['nomeUser'] ?? '');
+        if (!empty($nomeUserEsc) && $dadosUsuario['nomeUser'] !== $dadosUsuario['nomeCandidatoBD']) {
+            mysqli_query($conn, "UPDATE candidato SET nomeUsuario = '$nomeUserEsc' WHERE idCandidato = '$idCandidatoValido'");
+        }
     }
+} else {
+    header("Location: formLogin.php");
+    exit();
 }
 
 // Garante o ID na sessão
@@ -55,10 +62,10 @@ if ($idCandidatoValido) {
     $_SESSION['idCandidato'] = $idCandidatoValido;
 }
 
-// === TRATAMENTO E LOCALIZAÇÃO DA FOTO (FEITO VIA PHP SAFE) ===
+// === TRATAMENTO E LOCALIZAÇÃO DA FOTO ===
 $fotoBD = trim(
-    $dadosUsuario['fotoUsuario'] ?? 
     $dadosUsuario['fotoUser'] ?? 
+    $dadosUsuario['fotoCandidatoBD'] ?? 
     $_SESSION['fotoUsuario'] ?? 
     ''
 );
@@ -81,9 +88,11 @@ if (empty($fotoCandidato) && file_exists(__DIR__ . '/assets/img/img_avatar1.png'
     $fotoCandidato = 'assets/img/img_avatar1.png';
 }
 
-// Nome e iniciais do candidato
-$nomeCandidato = $dadosUsuario['nomeUsuario'] ?? $dadosUsuario['nomeUser'] ?? $_SESSION['nomeUsuario'] ?? 'Candidato';
-$cidadeCandidato = $dadosUsuario['cidadeUsuario'] ?? $dadosUsuario['cidadeUser'] ?? 'Não informada';
+// Nome e cidade (Prioridade total para os dados da tabela USUARIOS)
+$nomeCandidato = $dadosUsuario['nomeUser'] ?? $_SESSION['nomeUsuario'] ?? $dadosUsuario['nomeCandidatoBD'] ?? 'Candidato';
+$cidadeCandidato = $dadosUsuario['cidadeUser'] ?? 'Não informada';
+
+// Iniciais do nome
 $partesNome = explode(' ', trim($nomeCandidato));
 $iniciais = strtoupper(substr($partesNome[0], 0, 1) . (isset($partesNome[1]) ? substr($partesNome[1], 0, 1) : ''));
 
@@ -390,11 +399,13 @@ $resMinhasCandidaturas = mysqli_query($conn, $sqlMinhasCandidaturas);
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const modalCandidatura = document.getElementById('modalCandidatura');
-    modalCandidatura.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        document.getElementById('modalIdVaga').value = button.getAttribute('data-idvaga');
-        document.getElementById('modalTituloVaga').textContent = button.getAttribute('data-titulovaga');
-    });
+    if (modalCandidatura) {
+        modalCandidatura.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            document.getElementById('modalIdVaga').value = button.getAttribute('data-idvaga');
+            document.getElementById('modalTituloVaga').textContent = button.getAttribute('data-titulovaga');
+        });
+    }
 </script>
 
 <?php include "footer.php"; ?>
