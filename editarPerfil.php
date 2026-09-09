@@ -12,7 +12,7 @@ if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
 include "conexaoBD.php";
 
 // 2. Identifica o ID do usuário logado
-$idUsuario = $_SESSION['idUsuario'] ?? $_SESSION['idCandidato'] ?? 0;
+$idUsuario = (int)($_SESSION['idUsuario'] ?? $_SESSION['idCandidato'] ?? 0);
 
 // 3. Consulta dados do banco usando idUsuario
 $sql = "SELECT * FROM usuarios WHERE idUsuario = '$idUsuario'";
@@ -31,7 +31,7 @@ $dataNascimento = htmlspecialchars($usuario['dataNascimentoUsuario'] ?? '');
 $email = htmlspecialchars($usuario['emailUsuario'] ?? '');
 $telefone = htmlspecialchars($usuario['telefoneUsuario'] ?? '');
 $cidade = htmlspecialchars($usuario['cidadeUsuario'] ?? '');
-$estadoUsuario = $usuario['estadoUsuario'] ?? 'SP';
+$estadoUsuario = $usuario['estadoUsuario'] ?? 'PR';
 
 // Foto de perfil com fallback para imagem padrão
 $foto = (!empty($usuario['fotoUsuario']) && file_exists($usuario['fotoUsuario'])) ? $usuario['fotoUsuario'] : "assets/img/default-user.png";
@@ -60,8 +60,8 @@ $estados = [
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Fonte Plus Jakarta Sans / Poppins -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Fonte Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- CSS Customizado -->
     <link rel="stylesheet" href="css/styles.css">
@@ -88,7 +88,7 @@ $estados = [
                 <a class="nav-link" href="perfilCandidato.php"><i class="bi bi-file-person me-2"></i> Meu currículo</a>
                 <a class="nav-link" href="listarVagas.php"><i class="bi bi-briefcase me-2"></i> Oportunidades</a>
                 <a class="nav-link active" href="editarPerfil.php"><i class="bi bi-person me-2"></i> Perfil</a>
-                <a class="nav-link text-danger mt-4" href="sair.php"><i class="bi bi-box-arrow-right me-2"></i> Sair</a>
+                <a class="nav-link text-danger mt-4" href="logoutUsuario.php"><i class="bi bi-box-arrow-right me-2"></i> Sair</a>
             </nav>
         </div>
 

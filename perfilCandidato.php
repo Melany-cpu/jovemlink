@@ -12,7 +12,7 @@ if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
 include "conexaoBD.php";
 
 // 2. Identifica o ID do usuário conectado
-$idUsuario = $_SESSION['idUsuario'] ?? $_SESSION['idCandidato'] ?? 0;
+$idUsuario = (int)($_SESSION['idUsuario'] ?? $_SESSION['idCandidato'] ?? 0);
 
 // 3. Busca os dados do usuário no Banco de Dados
 $sql = "SELECT * FROM usuarios WHERE idUsuario = '$idUsuario'";
@@ -28,6 +28,7 @@ if ($result && mysqli_num_rows($result) > 0) {
 // 4. Tratamento das variáveis para exibição no HTML
 $nome = !empty($usuario['nomeUsuario']) ? htmlspecialchars($usuario['nomeUsuario']) : "Candidato";
 $email = !empty($usuario['emailUsuario']) ? htmlspecialchars($usuario['emailUsuario']) : "Não informado";
+$telefone = !empty($usuario['telefoneUsuario']) ? htmlspecialchars($usuario['telefoneUsuario']) : "";
 $cidade = !empty($usuario['cidadeUsuario']) ? htmlspecialchars($usuario['cidadeUsuario']) : "";
 $estado = !empty($usuario['estadoUsuario']) ? htmlspecialchars($usuario['estadoUsuario']) : "";
 $localizacao = (!empty($cidade) && !empty($estado)) ? "{$cidade} - {$estado}" : "Localização não informada";
@@ -125,6 +126,9 @@ if (!empty($usuario['dataNascimentoUsuario'])) {
                                         <div class="col-sm-6"><i class="bi bi-calendar me-2" style="color: #0d6efd !important;"></i> <?= $idade ?></div>
                                         <div class="col-sm-6"><i class="bi bi-geo-alt me-2" style="color: #0d6efd !important;"></i> <?= $localizacao ?></div>
                                         <div class="col-sm-6"><i class="bi bi-envelope me-2" style="color: #0d6efd !important;"></i> <?= $email ?></div>
+                                        <?php if (!empty($telefone)): ?>
+                                            <div class="col-sm-6"><i class="bi bi-telephone me-2" style="color: #0d6efd !important;"></i> <?= $telefone ?></div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -273,6 +277,9 @@ if (!empty($usuario['dataNascimentoUsuario'])) {
                                 <span><i class="bi bi-calendar me-1" style="color: #0d6efd !important;"></i> <?= $idade ?></span>
                                 <span><i class="bi bi-geo-alt me-1" style="color: #0d6efd !important;"></i> <?= $localizacao ?></span>
                                 <span><i class="bi bi-envelope me-1" style="color: #0d6efd !important;"></i> <?= $email ?></span>
+                                <?php if (!empty($telefone)): ?>
+                                    <span><i class="bi bi-telephone me-1" style="color: #0d6efd !important;"></i> <?= $telefone ?></span>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
