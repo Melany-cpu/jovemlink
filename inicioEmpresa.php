@@ -10,11 +10,19 @@ if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true || !isset($_SESS
 
 include "conexaoBD.php";
 
-$idEmpresa = $_SESSION['idEmpresa'];
+$idEmpresa = (int)$_SESSION['idEmpresa'];
 
 // Buscar dados da empresa logada
-$queryEmpresa = mysqli_query($conn, "SELECT * FROM Empresa WHERE idEmpresa = '$idEmpresa'");
+$queryEmpresa = mysqli_query($conn, "SELECT * FROM empresa WHERE idEmpresa = '$idEmpresa'");
 $dadosEmpresa = mysqli_fetch_assoc($queryEmpresa);
+
+// Validação da foto de perfil com fallback
+$fotoCaminho = $dadosEmpresa['fotoEmpresa'] ?? '';
+if (!empty($fotoCaminho) && file_exists($fotoCaminho)) {
+    $fotoPerfil = $fotoCaminho;
+} else {
+    $fotoPerfil = 'assets/img/default-company.png'; // Garanta que esta imagem exista ou use o ícone reserva abaixo
+}
 
 // Buscar apenas as vagas da empresa logada
 $sqlVagas = "SELECT * FROM vaga WHERE idEmpresa = '$idEmpresa' ORDER BY idVaga DESC";
@@ -58,7 +66,14 @@ $resultadoVagas = mysqli_query($conn, $sqlVagas);
 
             <div class="card-profile d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
-                    <img src="assets/img/img_avatar1.png" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid #0d6efd;">
+                    <!-- Div de container da imagem ajustada -->
+                    <div class="rounded-circle border d-flex align-items-center justify-content-center bg-light shadow-sm" style="width: 60px; height: 60px; overflow: hidden;">
+                        <img src="<?= $fotoPerfil ?>" 
+                             alt="<?= htmlspecialchars($dadosEmpresa['nomeEmpresa'] ?? 'Empresa') ?>" 
+                             style="width: 100%; height: 100%; object-fit: cover;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <i class="bi bi-building fs-4 text-secondary" style="display: none;"></i>
+                    </div>
                     <div>
                         <h4 class="fw-bold mb-0"><?= htmlspecialchars($dadosEmpresa['nomeEmpresa'] ?? 'Painel da Empresa') ?></h4>
                         <small class="text-muted">Recrutador • Gestão de Vagas</small>

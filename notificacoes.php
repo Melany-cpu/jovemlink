@@ -1,167 +1,196 @@
+<?php
+// 1. Inicia a sessão e valida o login
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
+    header("Location: formLogin.php");
+    exit();
+}
+
+include "conexaoBD.php";
+?>
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JOVEMLINK - Notificações</title>
-  <link rel="stylesheet" href="notificacoes.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificações - JovemLink</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Fonte Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- CSS Customizado -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        .sidebar .nav-link.active,
+        .sidebar .nav-link.active * {
+            background-color: #0d6efd !important;
+            color: #ffffff !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        .avatar-company {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .unread-card {
+            background-color: #f0f7ff;
+            border-left: 4px solid #0d6efd !important;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Topbar / Cabeçalho -->
-  <header class="topbar">
-    <div class="logo">JOVEMLINK</div>
-    <nav class="top-nav">
-      <a href="login-candidato.html">LOGIN - CANDIDATO</a>
-      <a href="login-empresa.html">LOGIN - EMPRESA</a>
-      <a href="perfil-candidato.html">PERFIL DO CANDIDATO</a>
-    </nav>
-  </header>
+<div class="container-fluid p-0">
+    <div class="row g-0">
 
-  <div class="main-container">
-    
-    <!-- Sidebar / Menu Lateral -->
-    <aside class="sidebar">
-      <ul>
-        <li>
-          <a href="inicio.html">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            Início
-          </a>
-        </li>
-        <li>
-          <a href="curriculo.html">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-            Meu currículo
-          </a>
-        </li>
-        <li>
-          <a href="oportunidades.html">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-            Oportunidades
-          </a>
-        </li>
-        <li class="active">
-          <a href="notificacoes.html">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-            Notificações
-          </a>
-        </li>
-        <li>
-          <a href="dicas.html">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path></svg>
-            Dicas
-          </a>
-        </li>
-        <li>
-          <a href="perfil.html">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            Perfil
-          </a>
-        </li>
-      </ul>
-
-      <div class="logout">
-        <a href="login.html">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-          Sair
-        </a>
-      </div>
-    </aside>
-
-    <!-- Conteúdo Principal da Aba Notificações -->
-    <main class="content">
-      <div class="header-section">
-        <div>
-          <h1>Notificações</h1>
-          <p class="subtitle">Fique por dentro das novidades e oportunidades que aparecem para você.</p>
-        </div>
-        <div class="filter-dropdown">
-          <select>
-            <option>Todas as notificações</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Lista de Notificações -->
-      <div class="notifications-list">
-
-        <!-- Item 1 -->
-        <div class="notification-card unread">
-          <div class="unread-dot"></div>
-          <div class="avatar logo-giraffas">Giraffas</div>
-          <div class="info">
-            <h2>Nova vaga disponível</h2>
-            <p>Giraffas está com vagas abertas para Atendente de Restaurante.</p>
-            <span class="time">Há 15 minutos</span>
-          </div>
-          <button class="btn-action">Ver vaga</button>
+        <!-- Sidebar Estática -->
+        <div class="col-md-3 col-lg-2 sidebar shadow-sm pt-4">
+            <nav class="nav flex-column px-2 gap-1">
+                <a class="nav-link" href="perfilCandidato.php"><i class="bi bi-file-person me-2"></i> Meu currículo</a>
+                <a class="nav-link" href="listarVagas.php"><i class="bi bi-briefcase me-2"></i> Oportunidades</a>
+                <a class="nav-link active" href="notificacoes.php"><i class="bi bi-bell me-2"></i> Notificações</a>
+                <a class="nav-link" href="editarPerfil.php"><i class="bi bi-person me-2"></i> Perfil</a>
+                <a class="nav-link text-danger mt-4" href="logoutUsuario.php"><i class="bi bi-box-arrow-right me-2"></i> Sair</a>
+            </nav>
         </div>
 
-        <!-- Item 2 -->
-        <div class="notification-card unread">
-          <div class="unread-dot"></div>
-          <div class="avatar logo-ca">C&A</div>
-          <div class="info">
-            <h2>Empresa demonstrou interesse no seu perfil</h2>
-            <p>A C&A visualizou seu currículo e pode entrar em contato em breve.</p>
-            <span class="time">Há 1 hora</span>
-          </div>
-          <button class="btn-action">Ver empresa</button>
+        <!-- Conteúdo Principal -->
+        <div class="col-md-9 col-lg-10">
+            <main class="px-3 px-md-4 pt-4 mb-5">
+                
+                <!-- Cabeçalho Principal -->
+                <div class="row align-items-center mb-4 g-3 bg-white p-4 rounded-3 shadow-sm border-0">
+                    <div class="col-md-8">
+                        <h1 class="fw-bold mb-1" style="color: #0d6efd !important;">Notificações</h1>
+                        <hr style="border: none !important; border-top: 2px solid #000000 !important; opacity: 1 !important; margin: 10px 0 !important;">
+                        <p class="mb-0" style="color: #0b2e59 !important;">Fique por dentro das novidades e oportunidades que aparecem para você.</p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <select class="form-select d-inline-block w-auto">
+                            <option>Todas as notificações</option>
+                            <option>Não lidas</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Lista de Notificações -->
+                <div class="d-flex flex-column gap-3">
+
+                    <!-- Notificação 1 -->
+                    <div class="card border-0 shadow-sm p-3 rounded-3 unread-card">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-company bg-warning text-dark">Giraffas</div>
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-dark">Nova vaga disponível</h6>
+                                    <p class="text-muted small mb-1">Giraffas está com vagas abertas para Atendente de Restaurante.</p>
+                                    <span class="text-secondary style-time small"><i class="bi bi-clock me-1"></i>Há 15 minutos</span>
+                                </div>
+                            </div>
+                            <a href="listarVagas.php" class="btn btn-outline-primary btn-sm fw-semibold px-3">Ver vaga</a>
+                        </div>
+                    </div>
+
+                    <!-- Notificação 2 -->
+                    <div class="card border-0 shadow-sm p-3 rounded-3 unread-card">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-company bg-danger">C&A</div>
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-dark">Empresa demonstrou interesse no seu perfil</h6>
+                                    <p class="text-muted small mb-1">A C&A visualizou seu currículo e pode entrar em contato em breve.</p>
+                                    <span class="text-secondary style-time small"><i class="bi bi-clock me-1"></i>Há 1 hora</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm fw-semibold px-3">Ver empresa</button>
+                        </div>
+                    </div>
+
+                    <!-- Notificação 3 -->
+                    <div class="card border-0 shadow-sm p-3 rounded-3 unread-card">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-company bg-danger fw-bold">M</div>
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-dark">Convite para processo seletivo</h6>
+                                    <p class="text-muted small mb-1">A McDonald's convidou você para participar de um processo seletivo.</p>
+                                    <span class="text-secondary style-time small"><i class="bi bi-clock me-1"></i>Há 2 horas</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm fw-semibold px-3">Ver detalhes</button>
+                        </div>
+                    </div>
+
+                    <!-- Notificação 4 -->
+                    <div class="card border-0 shadow-sm p-3 rounded-3 bg-white">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-company bg-dark">R</div>
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-dark">Vaga próxima ao seu perfil</h6>
+                                    <p class="text-muted small mb-1">A Renner publicou uma vaga que combina com o seu perfil.</p>
+                                    <span class="text-secondary style-time small"><i class="bi bi-clock me-1"></i>Ontem</span>
+                                </div>
+                            </div>
+                            <a href="listarVagas.php" class="btn btn-outline-primary btn-sm fw-semibold px-3">Ver vaga</a>
+                        </div>
+                    </div>
+
+                    <!-- Notificação 5 -->
+                    <div class="card border-0 shadow-sm p-3 rounded-3 bg-white">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-company bg-primary">Magalu</div>
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-dark">Atualização de candidatura</h6>
+                                    <p class="text-muted small mb-1">Seu currículo foi atualizado com sucesso para a vaga de Jovem Aprendiz.</p>
+                                    <span class="text-secondary style-time small"><i class="bi bi-clock me-1"></i>2 dias atrás</span>
+                                </div>
+                            </div>
+                            <a href="perfilCandidato.php" class="btn btn-outline-primary btn-sm fw-semibold px-3">Ver candidatura</a>
+                        </div>
+                    </div>
+
+                    <!-- Notificação 6 -->
+                    <div class="card border-0 shadow-sm p-3 rounded-3 bg-white">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-company bg-info text-white"><i class="bi bi-star-fill"></i></div>
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-dark">Dica para você</h6>
+                                    <p class="text-muted small mb-1">Complete seu currículo para aumentar suas chances de conseguir uma vaga.</p>
+                                    <span class="text-secondary style-time small"><i class="bi bi-clock me-1"></i>3 dias atrás</span>
+                                </div>
+                            </div>
+                            <a href="editarPerfil.php" class="btn btn-outline-primary btn-sm fw-semibold px-3">Completar currículo</a>
+                        </div>
+                    </div>
+
+                </div>
+
+            </main>
         </div>
 
-        <!-- Item 3 -->
-        <div class="notification-card unread">
-          <div class="unread-dot"></div>
-          <div class="avatar logo-mc">M</div>
-          <div class="info">
-            <h2>Convite para processo seletivo</h2>
-            <p>A McDonald's convidou você para participar de um processo seletivo.</p>
-            <span class="time">Há 2 horas</span>
-          </div>
-          <button class="btn-action">Ver detalhes</button>
-        </div>
+    </div>
+</div>
 
-        <!-- Item 4 -->
-        <div class="notification-card">
-          <div class="unread-dot hidden"></div>
-          <div class="avatar logo-renner">R</div>
-          <div class="info">
-            <h2>Vaga próxima ao seu perfil</h2>
-            <p>A Renner publicou uma vaga que combina com o seu perfil.</p>
-            <span class="time">Ontem</span>
-          </div>
-          <button class="btn-action">Ver vaga</button>
-        </div>
-
-        <!-- Item 5 -->
-        <div class="notification-card">
-          <div class="unread-dot hidden"></div>
-          <div class="avatar logo-magalu">magalu</div>
-          <div class="info">
-            <h2>Atualização de candidatura</h2>
-            <p>Seu currículo foi atualizado com sucesso para a vaga de Jovem Aprendiz.</p>
-            <span class="time">2 dias atrás</span>
-          </div>
-          <button class="btn-action">Ver candidatura</button>
-        </div>
-
-        <!-- Item 6 -->
-        <div class="notification-card">
-          <div class="unread-dot hidden"></div>
-          <div class="avatar logo-tip">★</div>
-          <div class="info">
-            <h2>Dica para você</h2>
-            <p>Complete seu currículo para aumentar suas chances de conseguir uma vaga.</p>
-            <span class="time">3 dias atrás</span>
-          </div>
-          <button class="btn-action">Completar currículo</button>
-        </div>
-
-      </div>
-    </main>
-
-  </div>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html>
+</html>  

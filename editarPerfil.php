@@ -14,7 +14,7 @@ include "conexaoBD.php";
 // 2. Identifica o ID do usuário logado
 $idUsuario = (int)($_SESSION['idUsuario'] ?? $_SESSION['idCandidato'] ?? 0);
 
-// 3. Consulta dados do banco usando idUsuario
+// 3. Consulta dados do banco apenas na tabela usuarios
 $sql = "SELECT * FROM usuarios WHERE idUsuario = '$idUsuario'";
 $result = mysqli_query($conn, $sql);
 
@@ -66,7 +66,6 @@ $estados = [
     <!-- CSS Customizado -->
     <link rel="stylesheet" href="css/styles.css">
 
-    <!-- Correção de visibilidade da Sidebar -->
     <style>
         .sidebar .nav-link.active,
         .sidebar .nav-link.active * {
@@ -87,6 +86,7 @@ $estados = [
             <nav class="nav flex-column px-2 gap-1">
                 <a class="nav-link" href="perfilCandidato.php"><i class="bi bi-file-person me-2"></i> Meu currículo</a>
                 <a class="nav-link" href="listarVagas.php"><i class="bi bi-briefcase me-2"></i> Oportunidades</a>
+                <a class="nav-link" href="notificacoes.php"><i class="bi bi-bell me-2"></i> Notificações</a>
                 <a class="nav-link active" href="editarPerfil.php"><i class="bi bi-person me-2"></i> Perfil</a>
                 <a class="nav-link text-danger mt-4" href="logoutUsuario.php"><i class="bi bi-box-arrow-right me-2"></i> Sair</a>
             </nav>
@@ -101,7 +101,7 @@ $estados = [
                     <div class="col-md-8">
                         <h1 class="fw-bold mb-1" style="color: #0d6efd !important;">Editar Perfil</h1>
                         <hr style="border: none !important; border-top: 2px solid #000000 !important; opacity: 1 !important; margin: 10px 0 !important;">
-                        <p class="mb-0" style="color: #0b2e59 !important;">Atualize seus dados pessoais e de contato para que as empresas te encontrem no JovemLink.</p>
+                        <p class="mb-0" style="color: #0b2e59 !important;">Atualize seus dados pessoais, endereço e informações do currículo.</p>
                     </div>
                     <div class="col-md-4 text-md-end">
                         <a href="perfilCandidato.php" class="btn btn-outline-primary px-3 py-2 fw-semibold">
@@ -129,10 +129,11 @@ $estados = [
                             </div>
                         </div>
 
-                        <!-- Coluna Direita: Form Dados e Endereço -->
+                        <!-- Coluna Direita: Form Dados, Endereço e Currículo -->
                         <div class="col-lg-8">
                             <div class="card border-0 shadow-sm p-4 rounded-3">
                                 
+                                <!-- Seção: Dados Pessoais -->
                                 <h5 class="fw-bold mb-3 pb-2 border-bottom d-flex align-items-center" style="color: #0b2e59 !important;">
                                     <i class="bi bi-card-heading me-2" style="color: #0d6efd !important;"></i> Dados Pessoais
                                 </h5>
@@ -159,6 +160,7 @@ $estados = [
                                     </div>
                                 </div>
 
+                                <!-- Seção: Endereço -->
                                 <h5 class="fw-bold mb-3 mt-4 pb-2 border-bottom d-flex align-items-center" style="color: #0b2e59 !important;">
                                     <i class="bi bi-geo-alt me-2" style="color: #0d6efd !important;"></i> Endereço
                                 </h5>
@@ -178,6 +180,33 @@ $estados = [
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
+                                    </div>
+                                </div>
+
+                                <!-- Seção: Informações do Currículo -->
+                                <h5 class="fw-bold mb-3 mt-4 pb-2 border-bottom d-flex align-items-center" style="color: #0b2e59 !important;">
+                                    <i class="bi bi-journal-bookmark me-2" style="color: #0d6efd !important;"></i> Informações do Currículo
+                                </h5>
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="escolaridade" class="form-label small fw-semibold text-muted">Escolaridade</label>
+                                        <input type="text" class="form-control" id="escolaridade" name="escolaridade" placeholder="Ex: Ensino Médio – Cursando">
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="cursos" class="form-label small fw-semibold text-muted">Cursos Adicionais</label>
+                                        <input type="text" class="form-control" id="cursos" name="cursos" placeholder="Ex: Informática Básica">
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="habilidades" class="form-label small fw-semibold text-muted">Habilidades Principais</label>
+                                        <input type="text" class="form-control" id="habilidades" name="habilidades" placeholder="Ex: Comunicação, Organização">
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="areaInteresse" class="form-label small fw-semibold text-muted">Área de Interesse</label>
+                                        <input type="text" class="form-control" id="areaInteresse" name="areaInteresse" placeholder="Ex: Administrativo, Atendimento">
                                     </div>
                                 </div>
 

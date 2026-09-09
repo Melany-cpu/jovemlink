@@ -1,16 +1,19 @@
 <?php
 
-    $hostBD   = "localhost"; //Define o local do servidor de BD
-    $userBD   = "root"; //Define o usuário do BD (Padrão: root)
-    $senhaBD  = "root"; //Define a senha do BD (Padrão: "" [Em Branco])
-    $database = "unimarket"; //Define com qual base será realizada a conexão
+    $hostBD   = "localhost";
+    $userBD   = "root"; 
+    $senhaBD  = "root"; 
+    $database = "jovemlink"; 
 
-    //Função do PHP para estabelecer a conexão com o BD
-    $conn     = mysqli_connect($hostBD, $userBD, $senhaBD, $database);
+    $conn = mysqli_connect($hostBD, $userBD, $senhaBD, $database);
 
-    //Verificar se há conexão com o BD
-    if(!$conn){
-        echo "<p>Erro ao tentar conectar a aplicação à base de dados <strong>$database</strong>!";
+    if (!$conn) {
+        // Exibe o motivo exato retornado pelo servidor MySQL
+        echo "<div style='color:red; background:#ffe6e6; padding:10px; border:1px solid red;'>";
+        echo "<strong>Erro de Conexão MySQL:</strong> " . mysqli_connect_error() . "<br>";
+        echo "<strong>Código do Erro:</strong> " . mysqli_connect_errno();
+        echo "</div>";
+        exit();
     }
 
 ?>
