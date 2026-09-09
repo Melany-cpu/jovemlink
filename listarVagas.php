@@ -14,7 +14,7 @@ include "conexaoBD.php";
 $idSessao = intval($_SESSION['idCandidato'] ?? $_SESSION['idUsuario'] ?? 0);
 $emailSessao = mysqli_real_escape_string($conn, $_SESSION['emailUsuario'] ?? '');
 
-// Busca os dados priorizando os dados da tabela usuarios
+// Busca os dados priorizando a tabela usuarios
 $sqlBuscaDados = "SELECT u.idUsuario,
                          u.nomeUsuario AS nomeUser,
                          u.fotoUsuario AS fotoUser,
@@ -36,7 +36,6 @@ if ($resBusca && mysqli_num_rows($resBusca) > 0) {
     $dadosUsuario = mysqli_fetch_assoc($resBusca);
     $idCandidatoValido = $dadosUsuario['idCandidato'] ?? $dadosUsuario['idUsuario'];
 
-    // Se o registro em candidato não existir, cria automaticamente
     if (empty($dadosUsuario['idCandidato'])) {
         $nome  = mysqli_real_escape_string($conn, $dadosUsuario['nomeUser'] ?? '');
         $email = mysqli_real_escape_string($conn, $dadosUsuario['emailUser'] ?? '');
@@ -46,7 +45,6 @@ if ($resBusca && mysqli_num_rows($resBusca) > 0) {
         mysqli_query($conn, $insere);
         $idCandidatoValido = $dadosUsuario['idUsuario'];
     } else {
-        // MANTÉM OS DADOS DE CANDIDATO SINCRONIZADOS COM USUARIOS
         $nomeUserEsc = mysqli_real_escape_string($conn, $dadosUsuario['nomeUser'] ?? '');
         if (!empty($nomeUserEsc) && $dadosUsuario['nomeUser'] !== $dadosUsuario['nomeCandidatoBD']) {
             mysqli_query($conn, "UPDATE candidato SET nomeUsuario = '$nomeUserEsc' WHERE idCandidato = '$idCandidatoValido'");
@@ -57,24 +55,16 @@ if ($resBusca && mysqli_num_rows($resBusca) > 0) {
     exit();
 }
 
-// Garante o ID na sessão
 if ($idCandidatoValido) {
     $_SESSION['idCandidato'] = $idCandidatoValido;
 }
 
 // === TRATAMENTO E LOCALIZAÇÃO DA FOTO ===
-$fotoBD = trim(
-    $dadosUsuario['fotoUser'] ?? 
-    $dadosUsuario['fotoCandidatoBD'] ?? 
-    $_SESSION['fotoUsuario'] ?? 
-    ''
-);
-
+$fotoBD = trim($dadosUsuario['fotoUser'] ?? $dadosUsuario['fotoCandidatoBD'] ?? $_SESSION['fotoUsuario'] ?? '');
 $fotoCandidato = '';
 
 if (!empty($fotoBD)) {
     $nomeArquivo = basename($fotoBD);
-
     if (file_exists(__DIR__ . '/uploads/' . $nomeArquivo)) {
         $fotoCandidato = 'uploads/' . $nomeArquivo;
     } elseif (file_exists(__DIR__ . '/' . $fotoBD)) {
@@ -88,17 +78,29 @@ if (empty($fotoCandidato) && file_exists(__DIR__ . '/assets/img/img_avatar1.png'
     $fotoCandidato = 'assets/img/img_avatar1.png';
 }
 
-// Nome e cidade (Prioridade total para os dados da tabela USUARIOS)
 $nomeCandidato = $dadosUsuario['nomeUser'] ?? $_SESSION['nomeUsuario'] ?? $dadosUsuario['nomeCandidatoBD'] ?? 'Candidato';
 $cidadeCandidato = $dadosUsuario['cidadeUser'] ?? 'Não informada';
 
-// Iniciais do nome
 $partesNome = explode(' ', trim($nomeCandidato));
 $iniciais = strtoupper(substr($partesNome[0], 0, 1) . (isset($partesNome[1]) ? substr($partesNome[1], 0, 1) : ''));
 
+// === CANCELAR CANDIDATURA ===
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['acao'] === 'cancelar_candidatura') {
+    $idCandidaturaCancelar = intval($_POST['idCandidatura'] ?? 0);
+    if ($idCandidaturaCancelar > 0 && $idCandidatoValido) {
+        $sqlDelete = "DELETE FROM candidatura WHERE idCandidatura = '$idCandidaturaCancelar' AND idCandidato = '$idCandidatoValido'";
+        if (mysqli_query($conn, $sqlDelete)) {
+            $_SESSION['msg_sucesso'] = "Candidatura cancelada com sucesso!";
+        } else {
+            $_SESSION['msg_erro'] = "Erro ao cancelar candidatura.";
+        }
+    }
+    header("Location: listarVagas.php");
+    exit();
+}
+
 // === PROCESSAMENTO DA CANDIDATURA ===
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['idVaga']) && isset($_FILES['curriculo'])) {
-    
     if (!$idCandidatoValido) {
         $_SESSION['msg_erro'] = "Erro: Candidato não identificado. Faça login novamente.";
         header("Location: listarVagas.php");
@@ -106,7 +108,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['idVaga']) && isset($_
     }
 
     $idVaga = intval($_POST['idVaga']);
-
     $verificaDuplicado = mysqli_query($conn, "SELECT idCandidatura FROM candidatura WHERE idCandidato = '$idCandidatoValido' AND idVaga = '$idVaga'");
     
     if ($verificaDuplicado && mysqli_num_rows($verificaDuplicado) > 0) {
@@ -144,13 +145,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['idVaga']) && isset($_
     exit();
 }
 
+// === FILTROS DE BUSCA DE VAGAS ===
+$buscaTermo = mysqli_real_escape_string($conn, trim($_GET['busca'] ?? ''));
+$filtroModalidade = mysqli_real_escape_string($conn, trim($_GET['modalidade'] ?? ''));
+
+$whereConditions = ["vaga.statusVaga = 'Ativa'"];
+
+if (!empty($buscaTermo)) {
+    $whereConditions[] = "(vaga.tituloVaga LIKE '%$buscaTermo%' OR vaga.descricaoVaga LIKE '%$buscaTermo%' OR Empresa.nomeEmpresa LIKE '%$buscaTermo%')";
+}
+
+if (!empty($filtroModalidade)) {
+    $whereConditions[] = "vaga.modalidadeVaga = '$filtroModalidade'";
+}
+
+$whereClause = implode(" AND ", $whereConditions);
+
 // Buscar vagas ativas
 $sqlVagas = "SELECT vaga.*, Empresa.nomeEmpresa 
              FROM vaga 
              INNER JOIN Empresa ON vaga.idEmpresa = Empresa.idEmpresa 
-             WHERE vaga.statusVaga = 'Ativa'
+             WHERE $whereClause
              ORDER BY vaga.idVaga DESC";
 $resultadoVagas = mysqli_query($conn, $sqlVagas);
+
+// Buscar IDs das vagas que o usuário já se candidatou
+$vagasCandidatadas = [];
+$resInscricoes = mysqli_query($conn, "SELECT idVaga FROM candidatura WHERE idCandidato = '$idCandidatoValido'");
+if ($resInscricoes) {
+    while ($row = mysqli_fetch_assoc($resInscricoes)) {
+        $vagasCandidatadas[] = $row['idVaga'];
+    }
+}
 
 // Buscar candidaturas efetuadas
 $sqlMinhasCandidaturas = "SELECT c.*, v.tituloVaga, v.cidadeVaga, v.estadoVaga, e.nomeEmpresa 
@@ -212,6 +238,7 @@ $resMinhasCandidaturas = mysqli_query($conn, $sqlMinhasCandidaturas);
             <nav class="nav flex-column px-2">
                 <a class="nav-link active" href="listarVagas.php"><i class="bi bi-briefcase"></i> Oportunidades</a>
                 <a class="nav-link" href="#minhas-candidaturas"><i class="bi bi-file-earmark-check"></i> Minhas Candidaturas</a>
+                <a class="nav-link" href="notificacoes.php"><i class="bi bi-bell"></i> Notificações</a>
                 <a class="nav-link" href="PerfilCandidato.php"><i class="bi bi-person"></i> Perfil</a>
                 <a class="nav-link text-danger mt-4" href="logoutUsuario.php"><i class="bi bi-box-arrow-right"></i> Sair</a>
             </nav>
@@ -265,10 +292,35 @@ $resMinhasCandidaturas = mysqli_query($conn, $sqlMinhasCandidaturas);
 
             <h1 class="text-center mb-4 fw-bold">Vagas Disponíveis</h1>
 
+            <!-- Barra de Filtro e Pesquisa -->
+            <form method="GET" action="listarVagas.php" class="row g-2 mb-4 bg-white p-3 rounded-4 shadow-sm align-items-center">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" name="busca" class="form-control border-start-0 ps-0" placeholder="Pesquisar por cargo, palavra-chave ou empresa..." value="<?= htmlspecialchars($buscaTermo) ?>">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select name="modalidade" class="form-select">
+                        <option value="">Todas as modalidades</option>
+                        <option value="Presencial" <?= $filtroModalidade === 'Presencial' ? 'selected' : '' ?>>Presencial</option>
+                        <option value="Remoto" <?= $filtroModalidade === 'Remoto' ? 'selected' : '' ?>>Remoto</option>
+                        <option value="Híbrido" <?= $filtroModalidade === 'Híbrido' ? 'selected' : '' ?>>Híbrido</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                    <?php if (!empty($buscaTermo) || !empty($filtroModalidade)): ?>
+                        <a href="listarVagas.php" class="btn btn-outline-secondary" title="Limpar Filtros"><i class="bi bi-x-circle"></i></a>
+                    <?php endif; ?>
+                </div>
+            </form>
+
             <!-- Lista de Vagas -->
             <div class="row g-3 mb-5">
                 <?php if ($resultadoVagas && mysqli_num_rows($resultadoVagas) > 0): ?>
                     <?php while ($vaga = mysqli_fetch_assoc($resultadoVagas)): ?>
+                        <?php $jaInscrito = in_array($vaga['idVaga'], $vagasCandidatadas); ?>
                         <div class="col-md-3">
                             <div class="card h-100 shadow-sm border-0 vaga-card">
                                 <div class="card-body d-flex flex-column justify-content-between p-3">
@@ -299,14 +351,20 @@ $resMinhasCandidaturas = mysqli_query($conn, $sqlMinhasCandidaturas);
                                     </div>
 
                                     <div class="pt-3 border-top mt-2">
-                                        <button type="button" 
-                                                class="btn btn-primary w-100" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#modalCandidatura"
-                                                data-idvaga="<?= $vaga['idVaga'] ?>"
-                                                data-titulovaga="<?= htmlspecialchars($vaga['tituloVaga']) ?>">
-                                            <i class="bi bi-send me-1"></i> Candidatar-se
-                                        </button>
+                                        <?php if ($jaInscrito): ?>
+                                            <button type="button" class="btn btn-success w-100 disabled" disabled>
+                                                <i class="bi bi-check-circle me-1"></i> Candidatado
+                                            </button>
+                                        <?php else: ?>
+                                            <button type="button" 
+                                                    class="btn btn-primary w-100" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#modalCandidatura"
+                                                    data-idvaga="<?= $vaga['idVaga'] ?>"
+                                                    data-titulovaga="<?= htmlspecialchars($vaga['tituloVaga']) ?>">
+                                                <i class="bi bi-send me-1"></i> Candidatar-se
+                                            </button>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -314,7 +372,7 @@ $resMinhasCandidaturas = mysqli_query($conn, $sqlMinhasCandidaturas);
                     <?php endwhile; ?>
                 <?php else: ?>
                     <div class="col-12 text-center py-5">
-                        <p class="text-muted fs-5">Nenhuma vaga aberta no momento.</p>
+                        <p class="text-muted fs-5">Nenhuma vaga encontrada para os critérios selecionados.</p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -334,6 +392,7 @@ $resMinhasCandidaturas = mysqli_query($conn, $sqlMinhasCandidaturas);
                                     <th>Local</th>
                                     <th>Data do Envio</th>
                                     <th>Status</th>
+                                    <th class="text-center">Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -352,11 +411,20 @@ $resMinhasCandidaturas = mysqli_query($conn, $sqlMinhasCandidaturas);
                                                 ?>
                                                 <span class="badge <?= $statusBadge ?>"><?= htmlspecialchars($cand['statusCandidatura']) ?></span>
                                             </td>
+                                            <td class="text-center">
+                                                <form action="listarVagas.php" method="POST" onsubmit="return confirm('Tem certeza que deseja cancelar esta candidatura?');" style="display:inline-block;">
+                                                    <input type="hidden" name="acao" value="cancelar_candidatura">
+                                                    <input type="hidden" name="idCandidatura" value="<?= $cand['idCandidatura'] ?>">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancelar candidatura">
+                                                        <i class="bi bi-trash"></i> Cancelar
+                                                    </button>
+                                                </form>
+                                            </td>
                                         </tr>
                                     <?php endwhile; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="5" class="text-center py-4 text-muted">Você ainda não se candidatou a nenhuma vaga.</td>
+                                        <td colspan="6" class="text-center py-4 text-muted">Você ainda não se candidatou a nenhuma vaga.</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>

@@ -109,7 +109,7 @@ if (!empty($usuario['dataNascimentoUsuario'])) {
             font-size: 1.25rem;
         }
 
-        /* Itens Padrão - Oportunidades e Perfil */
+        /* Itens Padrão */
         .menu-link.normal-item {
             background-color: transparent !important;
             color: #212529 !important;
@@ -161,14 +161,20 @@ if (!empty($usuario['dataNascimentoUsuario'])) {
                     <i class="bi bi-briefcase"></i>
                     <span>Oportunidades</span>
                 </a>
+
+                <!-- 3. Notificações -->
+                <a href="notificacoes.php" class="menu-link normal-item">
+                    <i class="bi bi-bell"></i>
+                    <span>Notificações</span>
+                </a>
                 
-                <!-- 3. Perfil -->
+                <!-- 4. Perfil -->
                 <a href="editarPerfil.php" class="menu-link normal-item">
                     <i class="bi bi-person"></i>
                     <span>Perfil</span>
                 </a>
                 
-                <!-- 4. Sair -->
+                <!-- 5. Sair -->
                 <a href="logoutUsuario.php" class="menu-link logout-item">
                     <i class="bi bi-box-arrow-right"></i>
                     <span>Sair</span>

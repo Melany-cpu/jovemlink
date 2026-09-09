@@ -29,14 +29,85 @@ include "conexaoBD.php";
     <link rel="stylesheet" href="css/styles.css">
 
     <style>
-        .sidebar .nav-link.active,
-        .sidebar .nav-link.active * {
-            background-color: #0d6efd !important;
-            color: #ffffff !important;
-            opacity: 1 !important;
-            visibility: visible !important;
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8f9fa;
         }
 
+        /* Sidebar com borda fina à direita */
+        .sidebar-container {
+            background-color: #ffffff;
+            min-height: 100vh;
+            border-right: 1px solid #e5e7eb;
+            padding-top: 24px;
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+
+        .menu-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 18px;
+            text-decoration: none !important;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 16px;
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            transition: background-color 0.2s ease;
+        }
+
+        /* Item Ativo - Notificações */
+        .menu-link.active-item {
+            background-color: #e8f1ff !important;
+            color: #0d6efd !important;
+        }
+
+        .menu-link.active-item i {
+            color: #0d6efd !important;
+            font-size: 1.25rem;
+        }
+
+        /* Itens Padrão */
+        .menu-link.normal-item {
+            background-color: transparent !important;
+            color: #212529 !important;
+        }
+
+        .menu-link.normal-item i {
+            color: #495057 !important;
+            font-size: 1.25rem;
+        }
+
+        .menu-link.normal-item:hover {
+            background-color: #f8f9fa !important;
+        }
+
+        /* Item Sair */
+        .menu-link.logout-item {
+            background-color: transparent !important;
+            color: #dc3545 !important;
+            margin-top: 20px;
+        }
+
+        .menu-link.logout-item i {
+            color: #dc3545 !important;
+            font-size: 1.25rem;
+        }
+
+        .menu-link.logout-item:hover {
+            background-color: #fff5f5 !important;
+        }
+
+        /* Estilos dos Cards de Notificação */
         .avatar-company {
             width: 48px;
             height: 48px;
@@ -47,6 +118,7 @@ include "conexaoBD.php";
             font-weight: 700;
             color: #fff;
             font-size: 0.9rem;
+            flex-shrink: 0;
         }
 
         .unread-card {
@@ -60,14 +132,40 @@ include "conexaoBD.php";
 <div class="container-fluid p-0">
     <div class="row g-0">
 
-        <!-- Sidebar Estática -->
-        <div class="col-md-3 col-lg-2 sidebar shadow-sm pt-4">
-            <nav class="nav flex-column px-2 gap-1">
-                <a class="nav-link" href="perfilCandidato.php"><i class="bi bi-file-person me-2"></i> Meu currículo</a>
-                <a class="nav-link" href="listarVagas.php"><i class="bi bi-briefcase me-2"></i> Oportunidades</a>
-                <a class="nav-link active" href="notificacoes.php"><i class="bi bi-bell me-2"></i> Notificações</a>
-                <a class="nav-link" href="editarPerfil.php"><i class="bi bi-person me-2"></i> Perfil</a>
-                <a class="nav-link text-danger mt-4" href="logoutUsuario.php"><i class="bi bi-box-arrow-right me-2"></i> Sair</a>
+        <!-- Sidebar / Menu Lateral -->
+        <div class="col-md-3 col-lg-2 sidebar-container">
+            <nav class="menu-list">
+                
+                <!-- 1. Meu currículo -->
+                <a href="perfilCandidato.php" class="menu-link normal-item">
+                    <i class="bi bi-person-vcard"></i>
+                    <span>Meu currículo</span>
+                </a>
+                
+                <!-- 2. Oportunidades -->
+                <a href="listarVagas.php" class="menu-link normal-item">
+                    <i class="bi bi-briefcase"></i>
+                    <span>Oportunidades</span>
+                </a>
+
+                <!-- 3. Notificações (Ativo) -->
+                <a href="notificacoes.php" class="menu-link active-item">
+                    <i class="bi bi-bell-fill"></i>
+                    <span>Notificações</span>
+                </a>
+                
+                <!-- 4. Perfil -->
+                <a href="editarPerfil.php" class="menu-link normal-item">
+                    <i class="bi bi-person"></i>
+                    <span>Perfil</span>
+                </a>
+                
+                <!-- 5. Sair -->
+                <a href="logoutUsuario.php" class="menu-link logout-item">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Sair</span>
+                </a>
+
             </nav>
         </div>
 
@@ -193,4 +291,4 @@ include "conexaoBD.php";
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html>  
+</html>
